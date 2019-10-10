@@ -13,3 +13,4 @@
 - Thirst priority, coeff for thirst value
 - Flee priority, coeff for distance to predator value
 - Mate priority, coeff for mate-search value
+- Size, effects visibility and place in food chain
