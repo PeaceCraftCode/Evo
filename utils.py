@@ -3,7 +3,7 @@ def cap(value,upper=1.0,lower=0.0): #keeps <value> between upper and lower bound
         value = upper
     elif value < lower:
         value = lower
-    return values
+    return value
 
 class Object: #basic object class, subclass to add functionality
     def objinit(self):
