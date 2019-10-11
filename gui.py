@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFileDialog, QSlider, QLabel, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFileDialog, QSlider, QLabel, QMessageBox, QLineEdit
 import PyQt5
 from json import load
 import os.path
+import time
 
 def split_at_caps(string):
     out = []
@@ -22,7 +23,7 @@ class CONFIG:
         elif self.configDict['SpeciesUpperCap'] <= self.configDict['SpeciesLowerCap']:
             msg = QMessageBox(QMessageBox.Information,'Error!','Your Species Upper Cap must be greater than your Species Lower Cap.')
         else:
-            msg = QMessageBox.question(self.window, 'Confirm', "Are you sure you want to finish configuration?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            msg = QMessageBox.question(self.window, 'Confirm', "Are you sure you want to finish configuration? If the name you specified already exists, you will overwrite that save!", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if msg == QMessageBox.Yes:
                 self.app.quit()
             return
@@ -34,11 +35,10 @@ class CONFIG:
     def showFileDialog(self): #function to show file selector
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self.window,"Evo Configuration - Select JSON Save File", "","JSON Files (*.json)", options=options)
+        fileName, _ = QFileDialog.getOpenFileName(self.window,"Evo Configuration - Select JSON Save File", "configs","JSON Files (*.json)", options=options)
         try:
             with open(fileName,'r') as fp:
                 self.configDict = load(fp)
-                print(self.configDict)
                 self.check_quit()
         except OSError:
             pass
@@ -49,6 +49,9 @@ class CONFIG:
             self.labelDict[name].setText(' '.join(split_at_caps(name)) + ' = ' + str(p))
             self.configDict[name] = p
         return _f
+
+    def setWorldName(self,text):
+        self.configDict['Name'] = text
 
     def __init__(self):
         self.configDict = { #set default values for config
@@ -95,6 +98,13 @@ class CONFIG:
             self.labelDict[cfg] = QLabel(' '.join(split_at_caps(cfg)) + ' = ' + str(self.configDict[cfg]))
             self.primLayout.addWidget(self.labelDict[cfg]) # add the label
             self.primLayout.addWidget(self.configSliderDict[cfg]) # add the slider
+
+        self.configDict['Name'] = time.strftime('%m-%d-%Y:%H:%M:%S') #Specify name
+        self.primLayout.addWidget(QLabel('Save Name:'))
+        self.enterName = QLineEdit()
+        self.enterName.setPlaceholderText(time.strftime('%m-%d-%Y:%H:%M:%S'))
+        self.enterName.textChanged.connect(self.setWorldName)
+        self.primLayout.addWidget(self.enterName)
 
         self.finishButton = QPushButton('Finish Configuration') # Add finish button
         self.finishButton.clicked.connect(self.check_quit) # Quit if pressed
