@@ -15,6 +15,20 @@ def doPythag(pos1,pos2): #find the pythagorean distance between 2 points
 def getAngle(pos1,pos2):
     return math.degrees(math.atan2(pos1[1]-pos2[1], pos2[0]-pos1[0]))
 
+def sort_array(array,index):
+    sortedinit = sorted([i[index] for i in array])
+    out = []
+    for i in sortedinit:
+        c = 0
+        for n in array:
+            if n[index] == i:
+                out.append(n)
+                break
+            c += 1
+
+        del array[c]
+    return out
+
 class World: #World class, manages pathfinding requests
     def __init__(self,config):
         self.config = config
@@ -62,7 +76,7 @@ class Animal(Object): #basic animal
     def find_targets(self,r): #fina all objects in radius
         found = []
         for obj in self.world.objects:
-            if doPythag(self.pos,obj.pos) <= r:
+            if doPythag(self.pos,obj.pos) <= r and self != obj:
                 found.append([
                     obj,
                     obj.pos,
@@ -70,3 +84,17 @@ class Animal(Object): #basic animal
                     getAngle(self.pos,obj.pos)
                 ])
         return found
+    
+    def get_target_trajectory(self,r):
+        targs = self.find_targets(r)
+        if len(targs) > 0:
+            return sort_array(targs,2)[0]
+    
+
+wld = World({})
+ans = []
+for i in range(10):
+    ans.append(Animal([random.randint(-50,50),random.randint(-50,50)],wld,specGenes={},deviation=1))
+
+print(ans[0].get_target_trajectory(50))
+
