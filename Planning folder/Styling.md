@@ -4,3 +4,4 @@
 - Variables: `camelCase`
 - Config Options: `CamelCase`
 - Genes: `camelCase`
+- Enums: `BIGLETTERSBOIS`
