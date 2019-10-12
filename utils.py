@@ -73,7 +73,7 @@ class Animal(Object): #basic animal
         for gene in self.specGenes.keys():
             self.genes[gene] = self.specGenes[gene] + random.uniform(-self.deviation,self.deviation)
     
-    def find_targets(self,r): #fina all objects in radius
+    def find_targets(self,r): #find all objects in radius
         found = []
         for obj in self.world.objects:
             if doPythag(self.pos,obj.pos) <= r and self != obj:
