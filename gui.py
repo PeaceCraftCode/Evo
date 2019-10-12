@@ -74,7 +74,7 @@ class CONFIG:
             'SpeciesLowerCap':[2,50],
             'PlantChanceCoefficient':[0,100],
             'WaterPercent':[0,100],
-            'TreeMaxHeight':[1,30]
+            'TreeMaxHeight':[2,7]
         }
         self.app = QApplication([]) #create application
         self.window = QWidget() #make a window
