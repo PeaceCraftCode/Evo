@@ -73,7 +73,6 @@ class CONFIG:
             'SpeciesUpperCap':[4,70],
             'SpeciesLowerCap':[2,50],
             'PlantChanceCoefficient':[0,100],
-            
             'WaterPercent':[0,100],
             'TreeMaxHeight':[1,30]
         }
