@@ -15,7 +15,7 @@ except SystemError:
 
 #testing
 wld = utils.World(cfg,800)
-utils.gen_species(20,'herbivore',wld)
+utils.gen_species(50,'herbivore',wld)
 
 pygame.init()
 sc = pygame.display.set_mode(wld.size)
@@ -30,7 +30,7 @@ while True:
     sc.blit(mp,[0,0])
     for i in wld.objects:
         try:
-            targ = utils.sort_array(i.get_target(100),2)[0]
+            targ = utils.sort_array(i.get_target(40),2)[0]
             i.move(-targ[3],i.get_speed())
             pygame.draw.line(sc,[255,0,0],i.pos,targ[1])
         except IndexError:

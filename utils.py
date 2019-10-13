@@ -98,6 +98,8 @@ class Object: #basic object class, subclass to add functionality
         if self.check_passable((self.pos[0]+xd,self.pos[1]+yd)):
             self.pos[0]+=xd
             self.pos[1]+=yd
+            return True
+        return False
 
 class Plant(Object): #basic plant, pass type and foodValue args
     def objinit(self):
@@ -153,21 +155,31 @@ class Animal(Object): #basic animal, pass specGenes (default species genes), dev
         return self.genes['size'] * cap(self.age * 4)
 
     def get_speed(self): #calc speed based on size, leg length, and (eventually) environment
-        return self.genes['legLength'] * math.sqrt(self.get_size())/4
+        waterMod = 1
+        if self.world.map[int(self.pos[0])][int(self.pos[1])] == 0:
+            waterMod = 0.1
+        return self.genes['legLength'] * (math.sqrt(self.get_size())/4) / waterMod
 
     def tick(self): #tick loop, add more here
         self.age += self.genes['ageSpeed']
     
     def move_random(self):
         if random.random() > self.genes['turnChance']:
-            self.move(self.direction,self.get_speed())
+            move_result = self.move(self.direction,self.get_speed())
         else:
             self.direction += random.uniform(0,90)
             if self.direction < 0:
                 self.direction = -180 - self.direction
             if self.direction > 180:
                 self.direction = -(self.direction-180)
-            self.move(self.direction,self.get_speed())
+            move_result = self.move(self.direction,self.get_speed())
+        while not move_result:
+            self.direction += random.uniform(0,90)
+            if self.direction < 0:
+                self.direction = -180 - self.direction
+            if self.direction > 180:
+                self.direction = -(self.direction-180)
+            move_result = self.move(self.direction,self.get_speed())
 
 def gen_species(num,tp,world,fail=10): #generate <num> animals of type <tp> in <world>, all animals are one species.
     global GENEMINMAXMEAN
