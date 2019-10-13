@@ -3,9 +3,10 @@ import gui
 import utils
 import json
 import os.path
+from time import sleep
 
 cfg = gui.CONFIG().configDict
-
+sleep(1)
 try:
     with open(os.path.join('configs',cfg['Name']+'.json'),'w') as fp:
         json.dump(cfg,fp)
