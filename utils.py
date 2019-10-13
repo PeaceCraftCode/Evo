@@ -1,6 +1,8 @@
 import time
 import random
 import math
+from noise import pnoise2
+import pygame
 
 GENEMINMAXMEAN = { #Dictionary of [min,max,mean,std. dev] of genes.
     'size' : [1,100,50,10],
@@ -37,10 +39,43 @@ def sort_array(array,index): #sort 2d list based on one index
     return out
 
 class World: #World class, manages pathfinding requests
+    def gen_world(self,size,config):
+        mp = []
+        pygame.init()
+        sc = pygame.display.set_mode([size,size])
+        random.seed()
+        octaves = random.random()
+        # octaves = (random.random() * 0.5) + 0.5
+        freq = 1000 * octaves
+        for x in range(size):
+            mp.append([])
+            for y in range(size):
+                n = math.sqrt(abs((pnoise2(x/freq, y / freq, 2))))
+                if n < 0.2:
+                    c = 0
+                elif n < 0.3:
+                    c = 1
+                elif n < 0.7:
+                    c = 2
+                else:
+                    c = 3
+                mp[x].append(c)
+                '''su = pygame.Surface([1,1])
+                su.fill(((0, 87, 217),(220, 230, 151),(0, 122, 16),(119, 120, 119))[c])
+                sc.blit(su,[x,y])
+        while True:
+            pygame.display.flip()
+            pygame.event.pump()'''
+        return mp
+            
+        
+
+
     def __init__(self,config,size):
         self.config = config
         self.objects = []
-        self.size = size #world size, tuple
+        self.size = (size,size) #world size, 1 #, square
+        self.map = self.gen_world(size,config)
 
 class Object: #basic object class, subclass to add functionality
     def objinit(self):
@@ -129,8 +164,10 @@ def gen_species(num,tp,world): #generate <num> animals of type <tp> in <world>, 
 
 
 #testing
-wld = World({},[1000,1000])
+wld = World({},800)
 gen_species(20,'herbivore',wld)
 
 print(wld.objects[0].get_target(100))
+while True:
+    pass
 
