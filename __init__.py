@@ -17,21 +17,28 @@ except SystemError:
 wld = utils.World(cfg,800)
 utils.gen_species(20,'herbivore',wld)
 
-print(wld.objects[0].get_target(200))
-
 pygame.init()
 sc = pygame.display.set_mode(wld.size)
+mp = pygame.Surface(wld.size)
 for x in range(wld.size[0]):
     for y in range(wld.size[0]):
         su = pygame.Surface([1,1])
         su.fill(((0, 87, 217),(220, 230, 151),(0, 122, 16),(119, 120, 119))[wld.map[x][y]])
-        sc.blit(su,[x,y])
-
-for i in wld.objects:
-    su = pygame.Surface([10,10])
-    su.fill((255,0,0))
-    sc.blit(su,[int(x)-5 for x in i.pos])
+        mp.blit(su,[x,y])
 
 while True:
+    sc.blit(mp,[0,0])
+    for i in wld.objects:
+        try:
+            targ = utils.sort_array(i.get_target(100),2)[0]
+            i.move(-targ[3],i.get_speed())
+            pygame.draw.line(sc,[255,0,0],i.pos,targ[1])
+        except IndexError:
+            i.move_random()
+
+        su = pygame.Surface([10,10])
+        su.fill((255,0,0))
+        sc.blit(su,[int(x)-5 for x in i.pos])
     pygame.display.flip()
     pygame.event.pump()
+    

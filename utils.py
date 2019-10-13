@@ -5,10 +5,12 @@ from noise import pnoise2
 import pygame
 
 GENEMINMAXMEAN = { #Dictionary of [min,max,mean,std. dev] of genes.
-    'size' : [1,100,50,10],
-    'attractiveness' : [.2,2,1,.2],
-    'neckLength' : [.1, 5,.5,.1],
-    'ageSpeed' : [.0000556, .000556, .000185,.00008]
+    'size': [1,100,50,10],
+    'attractiveness': [.2,2,1,.2],
+    'neckLength': [.1, 5,.5,.1],
+    'ageSpeed': [.0000556, .000556, .000185,.00008],
+    'legLength': [.2,1.5,.8,.4],
+    'turnChance': [.0001,.0009,.0003,.00005]
 }
 
 def cap(value,upper=1.0,lower=0.0): #keeps <value> between upper and lower bounds
@@ -70,7 +72,7 @@ class Object: #basic object class, subclass to add functionality
     def objinit(self):
         pass
     def __init__(self,pos,world,**kwargs):
-        self.pos = pos
+        self.pos = list(pos)
         self.alive = True
         self.world = world
         self.world.objects.append(self)
@@ -83,12 +85,19 @@ class Object: #basic object class, subclass to add functionality
 
     def tick(self): #to run every tick
         pass
+    
+    def check_passable(self,pos):
+        if pos[0] > self.world.size[0] or pos[0] < 0 or pos[1] > self.world.size[1] or pos[1] < 0:
+            return False
+        return True
 
     def move(self,direct,spd): #move spd pointed direct
         xd = (math.cos(math.radians(direct)))/spd
         yd = (math.sin(math.radians(direct)))/spd
-        self.pos[0]+=xd
-        self.pos[1]+=yd
+
+        if self.check_passable((self.pos[0]+xd,self.pos[1]+yd)):
+            self.pos[0]+=xd
+            self.pos[1]+=yd
 
 class Plant(Object): #basic plant, pass type and foodValue args
     def objinit(self):
@@ -117,6 +126,7 @@ class Animal(Object): #basic animal, pass specGenes (default species genes), dev
         global GENEMINMAXMEAN
         self.genes = {}
         self.age = 0.25
+        self.direction = random.choice([-1,1])*random.uniform(0,180)
         for gene in self.specGenes.keys():
             self.genes[gene] = cap((self.specGenes[gene] + random.uniform(-self.deviation,self.deviation)*(GENEMINMAXMEAN[gene][1]-GENEMINMAXMEAN[gene][0])),
                                    GENEMINMAXMEAN[gene][1],
@@ -129,7 +139,7 @@ class Animal(Object): #basic animal, pass specGenes (default species genes), dev
         for obj in self.world.objects:
             #print(obj,doPythag(self.pos,obj.pos) <= r * (math.sqrt(obj.get_size())/5) * obj.visibility)
             if doPythag(self.pos,obj.pos) <= r * (math.sqrt(obj.get_size())/7) * obj.visibility and self != obj: #calc is arbitrary and may be altered
-                print(obj.genes,r * (math.sqrt(obj.get_size())/7) * obj.visibility)
+                #print(obj.genes,r * (math.sqrt(obj.get_size())/7) * obj.visibility)
                 found.append([
                     obj,
                     obj.pos,
@@ -142,8 +152,22 @@ class Animal(Object): #basic animal, pass specGenes (default species genes), dev
     def get_size(self): #calculate size based on age
         return self.genes['size'] * cap(self.age * 4)
 
+    def get_speed(self): #calc speed based on size, leg length, and (eventually) environment
+        return self.genes['legLength'] * math.sqrt(self.get_size())/4
+
     def tick(self): #tick loop, add more here
         self.age += self.genes['ageSpeed']
+    
+    def move_random(self):
+        if random.random() > self.genes['turnChance']:
+            self.move(self.direction,self.get_speed())
+        else:
+            self.direction += random.uniform(0,90)
+            if self.direction < 0:
+                self.direction = -180 - self.direction
+            if self.direction > 180:
+                self.direction = -(self.direction-180)
+            self.move(self.direction,self.get_speed())
 
 def gen_species(num,tp,world,fail=10): #generate <num> animals of type <tp> in <world>, all animals are one species.
     global GENEMINMAXMEAN
