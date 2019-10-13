@@ -22,6 +22,8 @@ class CONFIG:
             msg = QMessageBox(QMessageBox.Information,'Error!','Your herbivore, omnivore, and carnivore percentages must sum to 100.')
         elif self.configDict['SpeciesUpperCap'] <= self.configDict['SpeciesLowerCap']:
             msg = QMessageBox(QMessageBox.Information,'Error!','Your Species Upper Cap must be greater than your Species Lower Cap.')
+        elif not (self.configDict['WaterLevel'] < self.configDict['BeachLevel'] and self.configDict['BeachLevel'] < self.configDict['GrassLevel']):
+            msg = QMessageBox(QMessageBox.Information,'Error!','Your Water, Beach, and Grass level must ascend in value in that order.')
         else:
             msg = QMessageBox.question(self.window, 'Confirm', "Are you sure you want to finish configuration? If the name you specified already exists, you will overwrite that save!", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if msg == QMessageBox.Yes:
@@ -62,8 +64,10 @@ class CONFIG:
             'SpeciesUpperCap':11,
             'SpeciesLowerCap':10,
             'PlantChanceCoefficient':100,
-            'WaterPercent':50,
-            'TreeMaxHeight':10
+            'TreeMaxHeight':10,
+            'WaterLevel':20,
+            'BeachLevel':30,
+            'GrassLevel':70
         }
         sliderSettings = { #set default values for config
             'SpeciesAmount':[2,50],
@@ -73,8 +77,10 @@ class CONFIG:
             'SpeciesUpperCap':[4,70],
             'SpeciesLowerCap':[2,50],
             'PlantChanceCoefficient':[0,100],
-            'WaterPercent':[0,100],
-            'TreeMaxHeight':[2,7]
+            'TreeMaxHeight':[2,7],
+            'WaterLevel':[0,60],
+            'BeachLevel':[0,100],
+            'GrassLevel':[0,100]
         }
         self.app = QApplication([]) #create application
         self.window = QWidget() #make a window
@@ -99,10 +105,10 @@ class CONFIG:
             self.primLayout.addWidget(self.labelDict[cfg]) # add the label
             self.primLayout.addWidget(self.configSliderDict[cfg]) # add the slider
 
-        self.configDict['Name'] = time.strftime('%m-%d-%Y:%H:%M:%S') #Specify name
+        self.configDict['Name'] = time.strftime('%m_%d_%Y_%H_%M_%S') #Specify name
         self.primLayout.addWidget(QLabel('Save Name:'))
         self.enterName = QLineEdit()
-        self.enterName.setPlaceholderText(time.strftime('%m-%d-%Y:%H:%M:%S'))
+        self.enterName.setPlaceholderText(time.strftime('%m_%d_%Y_%H_%M_%S'))
         self.enterName.textChanged.connect(self.setWorldName)
         self.primLayout.addWidget(self.enterName)
 

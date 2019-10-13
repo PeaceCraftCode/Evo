@@ -41,36 +41,25 @@ def sort_array(array,index): #sort 2d list based on one index
 class World: #World class, manages pathfinding requests
     def gen_world(self,size,config):
         mp = []
-        pygame.init()
-        sc = pygame.display.set_mode([size,size])
-        random.seed()
+        random.seed(random.randint(0,500000))
         octaves = random.random()
         # octaves = (random.random() * 0.5) + 0.5
-        freq = 1000 * octaves
+        freq = 500 * octaves
         for x in range(size):
             mp.append([])
             for y in range(size):
                 n = math.sqrt(abs((pnoise2(x/freq, y / freq, 2))))
-                if n < 0.2:
+                if n < config['WaterLevel']/100:
                     c = 0
-                elif n < 0.3:
+                elif n < config['BeachLevel']/100:
                     c = 1
-                elif n < 0.7:
+                elif n < config['GrassLevel']/100:
                     c = 2
                 else:
                     c = 3
                 mp[x].append(c)
-                '''su = pygame.Surface([1,1])
-                su.fill(((0, 87, 217),(220, 230, 151),(0, 122, 16),(119, 120, 119))[c])
-                sc.blit(su,[x,y])
-        while True:
-            pygame.display.flip()
-            pygame.event.pump()'''
         return mp
             
-        
-
-
     def __init__(self,config,size):
         self.config = config
         self.objects = []
@@ -156,18 +145,22 @@ class Animal(Object): #basic animal, pass specGenes (default species genes), dev
     def tick(self): #tick loop, add more here
         self.age += self.genes['ageSpeed']
 
-def gen_species(num,tp,world): #generate <num> animals of type <tp> in <world>, all animals are one species.
+def gen_species(num,tp,world,fail=10): #generate <num> animals of type <tp> in <world>, all animals are one species.
     global GENEMINMAXMEAN
     for i in range(num):
         genes = { g:cap(random.normalvariate(GENEMINMAXMEAN[g][2],GENEMINMAXMEAN[g][3]), GENEMINMAXMEAN[g][1],GENEMINMAXMEAN[g][0]) for g in GENEMINMAXMEAN.keys() }
-        Animal((random.uniform(0,world.size[0]),random.uniform(0,world.size[1])),world,specGenes=genes,deviation=random.uniform(0.002,0.1))
+        failed = False
+        fc = 0
+        while True:
+            pos = (random.uniform(0,world.size[0]),random.uniform(0,world.size[1]))
+            if world.map[int(pos[0])][int(pos[1])] != 0:
+                break
+            if fc == fail:
+                failed = True
+                break
+            fc += 1
+        if failed:
+            continue
+        Animal(pos,world,specGenes=genes,deviation=random.uniform(0.002,0.1))
 
-
-#testing
-wld = World({},800)
-gen_species(20,'herbivore',wld)
-
-print(wld.objects[0].get_target(100))
-while True:
-    pass
 
