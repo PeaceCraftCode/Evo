@@ -7,10 +7,12 @@ import pygame
 GENEMINMAXMEAN = { #Dictionary of [min,max,mean,std. dev] of genes.
     'size': [1,100,50,10],
     'attractiveness': [.2,2,1,.2],
-    'neckLength': [.1, 5,.5,.1],
-    'ageSpeed': [.0000556, .000556, .000185,.00008],
-    'legLength': [.2,1.5,.8,.4],
-    'turnChance': [.0001,.0009,.0003,.00005]
+    'neckLength': [.1, 5,.5,.1], #meters
+    'ageSpeed': [.0000556, .000556, .000185,.00008], #% per tick
+    'legLength': [.2,1.5,.8,.4], #meters
+    'turnChance': [.0001,.0009,.0003,.00005], #out of 1
+    'swimSpeedMod': [0.2,1.5,0.8,0.4],
+    'swimAbility': [800,5000,1500,100]
 }
 
 def cap(value,upper=1.0,lower=0.0): #keeps <value> between upper and lower bounds
@@ -155,10 +157,11 @@ class Animal(Object): #basic animal, pass specGenes (default species genes), dev
         return self.genes['size'] * cap(self.age * 4)
 
     def get_speed(self): #calc speed based on size, leg length, and (eventually) environment
-        waterMod = 1
         if self.world.map[int(self.pos[0])][int(self.pos[1])] == 0:
-            waterMod = 0.1
-        return self.genes['legLength'] * (math.sqrt(self.get_size())/4) / waterMod
+            waterMod = 0.1 * self.genes['swimSpeedMod']**2
+            return self.genes['legLength'] * (math.sqrt(self.get_size())/4) / waterMod
+        else:
+            return self.genes['legLength'] * (math.sqrt(self.get_size())/4) / self.genes['swimSpeedMod']**2
 
     def tick(self): #tick loop, add more here
         self.age += self.genes['ageSpeed']
