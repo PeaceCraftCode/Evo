@@ -2,6 +2,7 @@ import pygame
 import gui
 import utils
 import json
+import render
 import os.path
 from time import sleep
 
