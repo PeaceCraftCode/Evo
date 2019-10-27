@@ -2,10 +2,11 @@ import pygame
 import gui
 import utils
 import json
-import render
+from render import Renderer
 import os.path
 from time import sleep
 
+#movement testing
 cfg = gui.CONFIG().configDict
 sleep(1)
 try:
@@ -13,7 +14,7 @@ try:
         json.dump(cfg,fp)
 except SystemError:
     exit()
-
+'''
 #testing
 wld = utils.World(cfg,800)
 utils.gen_species(50,'herbivore',wld)
@@ -41,5 +42,28 @@ while True:
         su.fill((255,0,0))
         sc.blit(su,[int(x)-5 for x in i.pos])
     pygame.display.flip()
-    pygame.event.pump()
-    
+    pygame.event.pump()'''
+
+
+#render tests
+wld = utils.World(cfg,300)
+r = Renderer(wld,[500,500])
+pygame.key.set_repeat(100)
+screen = pygame.display.set_mode([500,500])
+
+pos = [0,0]
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            exit(0)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                pos[1] -= 1
+            if event.key == pygame.K_DOWN:
+                pos[1] += 1
+            if event.key == pygame.K_LEFT:
+                pos[0] -= 1
+            if event.key == pygame.K_RIGHT:
+                pos[0] += 1
+    screen.blit(r.render(pos),(0,0))
+    pygame.display.flip()
